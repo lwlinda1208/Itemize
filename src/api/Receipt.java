@@ -37,6 +37,8 @@ public class Receipt extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 
+	/*The DoGet request takes the parameter user and image_url to return THE corresponding receipt
+	 * */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		try{
@@ -58,6 +60,10 @@ public class Receipt extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
+
+	/*The doPost method accepts parameter for the receipt, user, image_url, category, grand_total and date is required
+	  Other parameters are optional
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		try {
@@ -69,13 +75,15 @@ public class Receipt extends HttpServlet {
 					request.getParameterMap().containsKey("category") &&
 					request.getParameterMap().containsKey("grand_total") &&
 					request.getParameterMap().containsKey("date")) {
-					String user = request.getParameter("user");
+				String user = request.getParameter("user");
+
+				//This is the make sure the user exists
 				boolean userExist = connection.getUser(user);
 				if(userExist){
-					
+
 					System.out.println(userExist);
 					HashMap<String, String> map = getParams(request);
-					
+
 					boolean result = connection.addReceipt(user, map);
 					if(result){
 						RpcParser.writeOutput(response,
@@ -101,6 +109,8 @@ public class Receipt extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPut(HttpServletRequest, HttpServletResponse)
 	 */
+
+	//This is to update an existing receipt
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
@@ -109,6 +119,7 @@ public class Receipt extends HttpServlet {
 			if (request.getParameterMap().containsKey("user") && 
 					request.getParameterMap().containsKey("image_url")) {
 				String imageURL = request.getParameter("image_url");
+				//This is to make sure the receipt exists
 				boolean receiptExist = connection.receiptExist(imageURL);
 				if(receiptExist){
 					String user = (String) request.getParameter("user");
@@ -139,6 +150,8 @@ public class Receipt extends HttpServlet {
 	/**
 	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)
 	 */
+
+	//This is to delete an existing receipt
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 
@@ -150,13 +163,20 @@ public class Receipt extends HttpServlet {
 				String user = request.getParameter("user");
 				String imageURL = request.getParameter("image_url");
 
-				boolean result = connection.deleteReceipt(user, imageURL);
-				if(result){
-					RpcParser.writeOutput(response,
-							new JSONObject().put("status", "OK"));
+				//This is to make sure the receipt exist
+				boolean receiptExist = connection.receiptExist(imageURL);
+
+				if(receiptExist){
+					boolean result = connection.deleteReceipt(user, imageURL);
+					if(result){
+						RpcParser.writeOutput(response,
+								new JSONObject().put("status", "OK"));
+					}else{
+						RpcParser.writeOutput(response,
+								new JSONObject().put("status", "Delete Unsucessful"));
+					}
 				}else{
-					RpcParser.writeOutput(response,
-							new JSONObject().put("status", "Delete Unsucessful"));
+					RpcParser.writeOutput(response, new JSONObject().put("status", "Receipt Does Not Exist"));
 				}
 			} else {
 				RpcParser.writeOutput(response,
@@ -167,6 +187,7 @@ public class Receipt extends HttpServlet {
 		}
 	}
 
+	//This is to read all parameters from the url
 	private HashMap<String, String> getParams (HttpServletRequest request) throws JSONException{
 		HashMap<String, String> map = new HashMap<>();
 
@@ -174,7 +195,7 @@ public class Receipt extends HttpServlet {
 			String user = (String) request.getParameter("user");
 			map.put("user", user);
 		}
-		
+
 		if(request.getParameterMap().containsKey("image_url")){
 			String imageURL = (String) request.getParameter("image_url");
 			map.put("image_url", imageURL);
