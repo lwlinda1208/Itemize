@@ -9,6 +9,11 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/*I am using the Builder pattern in the Receipt class because it has a lot of attributes and some of the fields are not
+	required.
+	The empty fields will be filled with either an empty String (if it's a String) or 0 (if it is a number)
+*/
+
 public class Receipt {
 	private String merchantName;
 	private String merchantAddress;
@@ -87,6 +92,7 @@ public class Receipt {
 		}
 	}
 	
+	//Build a receipt from a map containing all paramters
 	public static Receipt buildReceipt(Map<String, String> map){
 		String merchant_name = map.get("merchant_name");
 		String category = map.get("category");
@@ -120,6 +126,7 @@ public class Receipt {
 		}
 	}
 	
+	//Convert a Receipt to a JSON Object
 	public JSONObject toJSONObject(){
 		try {
 			JSONObject obj = new JSONObject();

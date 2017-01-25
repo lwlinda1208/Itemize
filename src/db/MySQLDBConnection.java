@@ -16,6 +16,20 @@ import com.mysql.jdbc.PreparedStatement;
 
 import model.Receipt;
 
+/* MySQL database structure
+ * Receipt Table
+ * user_id	merchant_name	merchant_address	category	image_url	subtotal	taxes	discount	tips	grand_total	date
+ * 
+ * user_id is a foreign key referring the user_id in the user table
+ * image_url is the primary key
+ * 
+ * 
+ * User Table
+ * user_id	first_name	last_name	address
+ * 
+ * user_id is the primary key
+ * */
+
 public class MySQLDBConnection implements DBConnection {
 
 	private Connection conn = null;
@@ -29,8 +43,6 @@ public class MySQLDBConnection implements DBConnection {
 		try {
 			// Forcing the class representing the MySQL driver to load and
 			// initialize.
-			// The newInstance() call is a work around for some broken Java
-			// implementations
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			conn = (Connection) DriverManager.getConnection(url);
 		} catch (Exception e) {
@@ -50,7 +62,7 @@ public class MySQLDBConnection implements DBConnection {
 
 	@Override
 	public JSONObject getReceipt(String user, String url) {
-		// TODO Auto-generated method stub
+		//get the receipt from the MySQL database using user id and image url
 		try{
 			String sql = "SELECT * from receipts where user_id= ? and image_url= ?";
 			PreparedStatement statement = (PreparedStatement) conn.prepareStatement(sql);
@@ -79,6 +91,7 @@ public class MySQLDBConnection implements DBConnection {
 
 	@Override
 	public boolean getUser(String user){
+		//See if the user exists
 		try{
 			String sql = "SELECT * from users where user_id = ?";
 			PreparedStatement statement = (PreparedStatement) conn.prepareStatement(sql);
@@ -93,7 +106,7 @@ public class MySQLDBConnection implements DBConnection {
 
 	@Override
 	public boolean addReceipt(String user, Map<String, String> map) {
-		// TODO Auto-generated method stub
+		
 		try{
 			String sql = "INSERT IGNORE INTO receipts VALUE (?,?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement statement = (PreparedStatement) conn.prepareStatement(sql);
@@ -135,7 +148,7 @@ public class MySQLDBConnection implements DBConnection {
 
 	@Override
 	public boolean updateReceipt(String user, Map<String, String> map) {
-		// TODO Auto-generated method stub
+		
 		try{
 			String image_url = map.get("image_url");
 			String sql = "UPDATE receipts SET ";
@@ -171,7 +184,7 @@ public class MySQLDBConnection implements DBConnection {
 			statement.setString(list.size()+1, user);
 			statement.setString(list.size()+2, image_url);
 			statement.execute();
-			//System.out.println(statement.toString());
+			
 			return true;
 		}catch(Exception e){
 			System.out.println(e.getMessage());
@@ -181,7 +194,7 @@ public class MySQLDBConnection implements DBConnection {
 
 	@Override
 	public boolean deleteReceipt(String user, String url) {
-		// TODO Auto-generated method stub
+		
 		try{
 			String sql = "DELETE FROM receipts WHERE user_id = ? and image_url = ?";
 			PreparedStatement statement = (PreparedStatement) conn.prepareStatement(sql);
@@ -195,16 +208,4 @@ public class MySQLDBConnection implements DBConnection {
 		return false;
 	}
 
-	public void testing(){
-		String query = "SHOW TABLES";
-		try {
-			PreparedStatement statement = (PreparedStatement) conn.prepareStatement(query);
-			ResultSet rs = statement.executeQuery();
-			while(rs.next()){
-				System.out.println(rs.getString(1));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
 }

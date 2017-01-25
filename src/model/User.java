@@ -1,6 +1,10 @@
 package model;
 
+/*Builder pattern is used in this class because some fields are optional
+ * Empty fields will be filled with an empty String*/
+
 public class User {
+
 	final private String user_id;
 	private String first_name;
 	private String last_name;
@@ -53,5 +57,15 @@ public class User {
 		return address;
 	}
 	
-	
+	public void setFirst_name(String first_name) {
+		this.first_name = first_name;
+	}
+
+	public void setLast_name(String last_name) {
+		this.last_name = last_name;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
 }

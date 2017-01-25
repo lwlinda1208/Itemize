@@ -37,7 +37,8 @@ public class Receipt extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 
-	/*The DoGet request takes the parameter user and image_url to return THE corresponding receipt
+	/*The DoGet request takes the parameter user and image_url
+	 * It writes in the output a JSONObject of the corresponding receipt
 	 * */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -63,12 +64,12 @@ public class Receipt extends HttpServlet {
 
 	/*The doPost method accepts parameter for the receipt, user, image_url, category, grand_total and date is required
 	  Other parameters are optional
+	  It will write in the output a JSONObject of the posting status
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		
 		try {
 			final DBConnection connection = new MySQLDBConnection();
-			JSONObject input = RpcParser.parseInput(request);
 			if (request.getParameterMap().containsKey("user") && 
 					request.getParameterMap().containsKey("image_url") && 
 					request.getParameterMap().containsKey("merchant_name") && 
@@ -77,11 +78,10 @@ public class Receipt extends HttpServlet {
 					request.getParameterMap().containsKey("date")) {
 				String user = request.getParameter("user");
 
-				//This is the make sure the user exists
+				//Make sure the user exists first
 				boolean userExist = connection.getUser(user);
 				if(userExist){
 
-					System.out.println(userExist);
 					HashMap<String, String> map = getParams(request);
 
 					boolean result = connection.addReceipt(user, map);
@@ -89,15 +89,17 @@ public class Receipt extends HttpServlet {
 						RpcParser.writeOutput(response,
 								new JSONObject().put("status", "OK"));
 					}else{
+						//If posting fails for some reason in the db, return unsuccessful
 						RpcParser.writeOutput(response,
 								new JSONObject().put("status", "Unsuccessful"));
 					}
 				}else {
-					System.out.println(userExist);
+					//If user does not exist
 					RpcParser.writeOutput(response,
 							new JSONObject().put("status", "User Does Not Exist"));
 				}
 			} else {
+				//If not all required parameters are in the url
 				RpcParser.writeOutput(response,
 						new JSONObject().put("status", "Invalid Parameter"));
 			}
@@ -110,9 +112,11 @@ public class Receipt extends HttpServlet {
 	 * @see HttpServlet#doPut(HttpServletRequest, HttpServletResponse)
 	 */
 
-	//This is to update an existing receipt
+	/*This is to update an existing receipt, it requires the image_url and user parameter, and the attribute that needs
+	 * to be updated.
+	 * It will write in the output a JSONObject of the update status
+	 */
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 
 		try {
 			final DBConnection connection = new MySQLDBConnection();
@@ -135,9 +139,11 @@ public class Receipt extends HttpServlet {
 								new JSONObject().put("status", "Update Unsucessful"));
 					}
 				}else{
+					//If the receipt does not exist
 					RpcParser.writeOutput(response, new JSONObject().put("status", "Receipt Does Not exist"));
 				}
 			} else {
+				//If not all required parameters are in the url
 				RpcParser.writeOutput(response,
 						new JSONObject().put("status", "Invalid Parameter"));
 			}
@@ -151,13 +157,13 @@ public class Receipt extends HttpServlet {
 	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)
 	 */
 
-	//This is to delete an existing receipt
+	/*This is to delete an existing receipt, it requires the user and image_url parameter
+	 * It will write in the output a JSONObject of the deletion status
+	 */
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 
 		try {
 			final DBConnection connection = new MySQLDBConnection();
-			JSONObject input = RpcParser.parseInput(request);
 			if (request.getParameterMap().containsKey("user") && 
 					request.getParameterMap().containsKey("image_url")) {
 				String user = request.getParameter("user");
@@ -176,9 +182,11 @@ public class Receipt extends HttpServlet {
 								new JSONObject().put("status", "Delete Unsucessful"));
 					}
 				}else{
+					//If the receipt does not exist
 					RpcParser.writeOutput(response, new JSONObject().put("status", "Receipt Does Not Exist"));
 				}
 			} else {
+				//If not all required parameters are in the url
 				RpcParser.writeOutput(response,
 						new JSONObject().put("status", "Invalid Parameter"));
 			}
